@@ -1,8 +1,11 @@
 #pragma once
 
+#include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_syswm.h>
+#include <Windows.h>
 
 class Game
 {
@@ -11,6 +14,7 @@ private:
 	unsigned int frameTargetTime;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	bool makeWindowTransparent(SDL_Window* window, COLORREF colorKey);
 
 public:
 	Game();

@@ -1,7 +1,6 @@
 #include "Game.h"
-#include <iostream>
 
-Game::Game() {
+Game::Game(): window(NULL), renderer(NULL) {
     this->ticksLastFrame = 0;
     this->frameTargetTime = 15;
     this->isRunning = false;
@@ -26,18 +25,18 @@ void Game::Initialize(int width, int height, unsigned int fps) {
         return;
     }
     window = SDL_CreateWindow(
-        NULL,
+        "SDL Game C++",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         width,
         height,
-        SDL_WINDOW_BORDERLESS
+        SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALWAYS_ON_TOP
     );
     if (!window) {
         std::cerr << "Error creating SDL window." << std::endl;
         return;
     }
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "Error creating SDL renderer." << std::endl;
         return;
@@ -77,7 +76,8 @@ void Game::Update() {
 }
 
 void Game::Render() {
-    SDL_SetRenderDrawColor(renderer, 234, 226, 183, 255);
+    // Set background color to magenta and clear screen
+    SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
     SDL_RenderClear(renderer);
 
     SDL_Rect projectile = {
@@ -90,6 +90,8 @@ void Game::Render() {
     SDL_SetRenderDrawColor(renderer, 214, 40, 40, 255);
     SDL_RenderFillRect(renderer, &projectile);
 
+    // Add window transparency (Magenta will be see-through)
+    this->makeWindowTransparent(window, RGB(255, 0, 255));
     SDL_RenderPresent(renderer);
 }
 
@@ -97,4 +99,20 @@ void Game::Destroy() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+// Makes a window transparent by setting a transparency color.
+// https://stackoverflow.com/a/51956224/942317
+bool Game::makeWindowTransparent(SDL_Window* window, COLORREF colorKey) {
+    // Get window handle (https://stackoverflow.com/a/24118145/3357935)
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);  // Initialize wmInfo
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    HWND hWnd = wmInfo.info.win.window;
+
+    // Change window type to layered (https://stackoverflow.com/a/3970218/3357935)
+    SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+
+    // Set transparency color
+    return ::SetLayeredWindowAttributes(hWnd, colorKey, 0, LWA_COLORKEY);
 }
