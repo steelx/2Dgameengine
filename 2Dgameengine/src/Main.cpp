@@ -1,12 +1,20 @@
 #include "pch.h"
+#include "Game.h"
+#include "Constants.h"
 
 int main(int argc, char* argv[]) {
-    sol::state lua;
-    lua.open_libraries(sol::lib::base);
+    Game* game = new Game();
 
-    glm::vec2 velocity = glm::vec2(2.0, -1.6);
+    game->Initialize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    SDL_Init(SDL_INIT_EVERYTHING);
-    std::cout << "Dll check!" << std::endl;
+    while (game->IsRunning())
+    {
+        game->ProcessInput();
+        game->Update();
+        game->Render();
+    }
+
+    game->Destroy();
+
     return 0;
 }
