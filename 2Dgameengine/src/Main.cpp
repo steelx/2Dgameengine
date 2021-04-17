@@ -5,7 +5,7 @@
 int main(int argc, char* argv[]) {
     Game game;
 
-    game.Initialize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    game.Initialize(WINDOW_WIDTH, WINDOW_HEIGHT, FRAME_TARGET_TIME);
 
     while (game.IsRunning())
     {

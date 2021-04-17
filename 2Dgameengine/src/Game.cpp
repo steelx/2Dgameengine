@@ -2,6 +2,8 @@
 #include <iostream>
 
 Game::Game() {
+    this->ticksLastFrame = 0;
+    this->frameTargetTime = 15;
     this->isRunning = false;
 }
 
@@ -14,12 +16,13 @@ bool Game::IsRunning() const {
 
 float projectilePosX = 0.0f;
 float projectilePosY = 0.0f;
-float projectileVelX = 0.1f;
-float projectileVelY = 0.1f;
+float projectileVelX = 10.1f;
+float projectileVelY = 10.0f;
 
-void Game::Initialize(int width, int height) {
+void Game::Initialize(int width, int height, unsigned int fps) {
+    frameTargetTime = fps;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        std::cerr << "Error initializing SDL." << std::endl;
+        std::cerr << "Error initializing SDL: " << SDL_GetError() << std::endl;
         return;
     }
     window = SDL_CreateWindow(
@@ -62,8 +65,15 @@ void Game::ProcessInput() {
 }
 
 void Game::Update() {
-    projectilePosX += projectileVelX;
-    projectilePosY += projectileVelY;
+    // Wait until target time has elapsed
+    while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksLastFrame + frameTargetTime));
+
+    // build delta
+    float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
+    ticksLastFrame = SDL_GetTicks();
+
+    projectilePosX += projectileVelX * deltaTime;
+    projectilePosY += projectileVelY * deltaTime;
 }
 
 void Game::Render() {
