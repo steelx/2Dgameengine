@@ -69,6 +69,9 @@ void Game::Update() {
 
     // build delta
     float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
+    // clamp
+    deltaTime = (deltaTime > 0.05f) ? 0.05f : deltaTime;
+
     ticksLastFrame = SDL_GetTicks();
 
     projectilePosX += projectileVelX * deltaTime;
@@ -77,7 +80,7 @@ void Game::Update() {
 
 void Game::Render() {
     // Set background color to magenta and clear screen
-    SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     SDL_Rect projectile = {
@@ -91,7 +94,7 @@ void Game::Render() {
     SDL_RenderFillRect(renderer, &projectile);
 
     // Add window transparency (Magenta will be see-through)
-    this->makeWindowTransparent(window, RGB(255, 0, 255));
+    //this->makeWindowTransparent(window, RGB(0, 0, 0));
     SDL_RenderPresent(renderer);
 }
 
@@ -114,5 +117,6 @@ bool Game::makeWindowTransparent(SDL_Window* window, COLORREF colorKey) {
     SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
     // Set transparency color
+    // colorKey must be similar to Renderer clear color
     return ::SetLayeredWindowAttributes(hWnd, colorKey, 0, LWA_COLORKEY);
 }
