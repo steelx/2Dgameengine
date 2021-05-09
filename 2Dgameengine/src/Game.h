@@ -13,15 +13,16 @@ private:
 	bool isRunning;
 	unsigned int frameTargetTime;
 	SDL_Window* window;
-	SDL_Renderer* renderer;
 	bool makeWindowTransparent(SDL_Window* window, COLORREF colorKey);
 
 public:
 	Game();
 	~Game();
+	static SDL_Renderer* renderer;
 	unsigned int ticksLastFrame;
 	bool IsRunning() const;
 	void Initialize(int width, int height, unsigned int fps);
+	void LoadLevel(int level);
 	void ProcessInput();
 	void Update();
 	void Render();

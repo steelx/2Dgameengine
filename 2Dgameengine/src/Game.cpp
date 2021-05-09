@@ -1,6 +1,12 @@
 #include "Game.h"
+// TransformComponent has EntityManager
+#include "components/TransformComponent.h"
+#include "../libs/glm/glm.hpp"
 
-Game::Game(): window(NULL), renderer(NULL) {
+EntityManager manager;
+SDL_Renderer* Game::renderer;
+
+Game::Game(): window(NULL) {
     this->ticksLastFrame = 0;
     this->frameTargetTime = 15;
     this->isRunning = false;
@@ -12,11 +18,6 @@ Game::~Game() {
 bool Game::IsRunning() const {
     return this->isRunning;
 }
-
-float projectilePosX = 0.0f;
-float projectilePosY = 0.0f;
-float projectileVelX = 10.1f;
-float projectileVelY = 10.0f;
 
 void Game::Initialize(int width, int height, unsigned int fps) {
     frameTargetTime = fps;
@@ -42,8 +43,18 @@ void Game::Initialize(int width, int height, unsigned int fps) {
         return;
     }
 
+    LoadLevel(0);
+
     isRunning = true;
     return;
+}
+
+void Game::LoadLevel(int level)
+{
+    // Add Entity and Component to entities
+    Entity& projectile{ manager.AddEntity("projectile") };
+    projectile.AddComponent<TransformComponent>(0,0,5,5,32,32,1);
+
 }
 
 void Game::ProcessInput() {
@@ -77,27 +88,24 @@ void Game::Update() {
 
     ticksLastFrame = SDL_GetTicks();
 
-    projectilePosX += projectileVelX * deltaTime;
-    projectilePosY += projectileVelY * deltaTime;
+    // here we call the manager.update to update all Entities, passing deltaTime
+    manager.Update(deltaTime);
 }
 
 void Game::Render() {
-    // Set background color to magenta and clear screen
+    // 01 Set background color
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    // 02 clear the back buffer
     SDL_RenderClear(renderer);
 
-    SDL_Rect projectile = {
-        (int)projectilePosX,
-        (int)projectilePosY,
-        10,
-        10
-    };
+    // here we call the manager.render to render all Entities
+    if (manager.HasNoEntities()) return;
+    manager.Render();
 
-    SDL_SetRenderDrawColor(renderer, 214, 40, 40, 255);
-    SDL_RenderFillRect(renderer, &projectile);
-
-    // Add window transparency (Magenta will be see-through)
+    // Add window transparency (same color as background see-through)
     //this->makeWindowTransparent(window, RGB(0, 0, 0));
+
+    // 03 swap front & back buffers
     SDL_RenderPresent(renderer);
 }
 
